@@ -41,6 +41,30 @@ try:
     driver.save_screenshot(screenshot_path)
     print(f"Screenshot saved to {screenshot_path}")
 
+    # 找到表格元素
+    # table = driver.find_element(By.CLASS_NAME, 'table-striped')
+
+    # # 提取表格数据
+    # rows = table.find_elements(By.TAG_NAME, 'tr')
+    # for row in rows:
+    #     cols = row.find_elements(By.TAG_NAME, 'td')
+    #     for col in cols:
+    #         print(col.text.strip())
+
+    lst = []  # 将表格的内容存储为list
+
+    element = driver.find_element(By.XPATH, '//*[@id="tabShareHolderContent"]/div[3]/table')  # 定位表格
+    table = element.find_element(By.XPATH, '//*[@id="tabShareHolderContent"]/div[3]/table/tbody')
+    # 提取表格内容td
+    tr_tags = table.find_elements(By.TAG_NAME, 'tr')  # 进一步定位到表格内容所在的tr节点
+    for tr in tr_tags:
+        td_tags = tr.find_elements(By.TAG_NAME, 'td')
+        for td in td_tags[:4]: #只提取前4列
+            lst.append(td.text) #不断抓取的内容新增到list当中
+
+    print(table)
+    print("********")
+    print(lst)
 
 finally:
     # 關閉瀏覽器
