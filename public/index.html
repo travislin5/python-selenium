@@ -7,20 +7,79 @@
     <title>Document</title>
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <style>
+        #screenshot {
+            max-width: 100%;  /* 限制圖片的最大寬度為100% */
+            height: auto;    /* 高度自動調整以保持圖片比例 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+    </style>
 </head>
 
 <body>
-    <div>要搜尋的公司：<input id="companyname" type="text"> <button id="search">搜尋</button></div>
-
+    <div>要搜尋的公司 : <input id="companyname" type="text"> <button id="search">搜尋</button></div>
+    <div>
+        <h3>Result : </h3>
+        <img id="screenshot" src="" alt="Screenshot will be displayed here" style="display: none;"/>
+        <a id="downloadLink" href="" download="" style="display: none;">下載截圖</a>
+    </div>
+    <h3>公司資料：</h3>
+        <table id="companyData" style="display: none;">
+            <tbody>
+            </tbody>
+        </table>
     <script>
         $("#search").click(function () {
             console.log($("#companyname").val())
 
+            company_data = {
+                "company_name" : $("#companyname").val()
+            }
+
             $.ajax({
                 type: 'POST',
-                url: '/api/pic',
+                url: '/get_company_data',
+                contentType: 'application/json;charset=UTF-8',
+                data: JSON.stringify(company_data),
                 success: function (response) {
-                    console.log(123)
+                    console.log("*******")
+                    console.log(response)
+                    var screenshot_path = response.screenshot_path;
+                    var data = response.data;
+                    var filename = screenshot_path.split('/').pop();
+
+                    $("#screenshot").attr("src", screenshot_path);
+                    $("#screenshot").show();
+
+                    // 更新下載連結的href屬性並顯示下載按鈕
+                    $("#downloadLink").attr("href", screenshot_path);
+                    $("#downloadLink").attr("download", filename);
+                    $("#downloadLink").show();
+                    // 獲取公司資料數據
+                    
+
+                    // 清空表格
+                    $("#companyData tbody").empty();
+
+                    // 生成表格
+                    for (var i = 0; i < data.length; i++) {
+                        var row = "<tr>";
+                        for (var j = 0; j < data[i].length; j++) {
+                            row += "<td>" + data[i][j] + "</td>";
+                        }
+                        row += "</tr>";
+                        $("#companyData tbody").append(row);
+                    }
+
+                    // 顯示表格
+                    $("#companyData").show();
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log(456)

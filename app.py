@@ -5,14 +5,16 @@ from selenium.webdriver.common.keys import Keys
 import time
 
 # linux上執行selenium用的配置
-ch_options = webdriver.ChromeOptions()
+# ch_options = webdriver.ChromeOptions()
 
-ch_options.add_argument("--headless")
-ch_options.add_argument("--no-sandbox")
-ch_options.add_argument("--disble-gpu")
-ch_options.add_argument("--disble-dev-shm-usage")
-# 開啟瀏覽器視窗(Chrome)
-driver = webdriver.Chrome(ch_options)
+# ch_options.add_argument("--headless")
+# ch_options.add_argument("--no-sandbox")
+# ch_options.add_argument("--disble-gpu")
+# ch_options.add_argument("--disble-dev-shm-usage")
+# # 開啟瀏覽器視窗(Chrome)
+# driver = webdriver.Chrome(ch_options)
+driver = webdriver.Chrome()
+driver.maximize_window()
 
 try:
     # 開啟目標網頁
@@ -48,34 +50,25 @@ try:
     driver.save_screenshot(screenshot_path)
     print(f"Screenshot saved to {screenshot_path}")
 
-    # 找到表格元素
-    # table = driver.find_element(By.CLASS_NAME, 'table-striped')
+    data = []
 
-    # # 提取表格数据
-    # rows = table.find_elements(By.TAG_NAME, 'tr')
-    # for row in rows:
-    #     cols = row.find_elements(By.TAG_NAME, 'td')
-    #     for col in cols:
-    #         print(col.text.strip())
-
-    lst = []  # 将表格的内容存储为list
-
+    # 定位表格
     element = driver.find_element(
         By.XPATH, '//*[@id="tabShareHolderContent"]/div[3]/table'
-    )  # 定位表格
+    )  
     table = element.find_element(
         By.XPATH, '//*[@id="tabShareHolderContent"]/div[3]/table/tbody'
     )
-    # 提取表格内容td
-    tr_tags = table.find_elements(By.TAG_NAME, "tr")  # 进一步定位到表格内容所在的tr节点
-    for tr in tr_tags:
-        td_tags = tr.find_elements(By.TAG_NAME, "td")
-        for td in td_tags[:4]:  # 只提取前4列
-            lst.append(td.text)  # 不断抓取的内容新增到list当中
+    rows = table.find_elements(By.TAG_NAME, 'tr')
+    for row in rows:
+        row_data = []
+        cols = row.find_elements(By.TAG_NAME, 'td')
+        for col in cols:
+            row_data.append(col.text.strip())
+        data.append(row_data)
 
-    print(table)
     print("********")
-    print(lst)
+    print(data)
 
 finally:
     # 關閉瀏覽器
