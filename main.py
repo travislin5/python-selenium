@@ -17,21 +17,34 @@ app = FastAPI()
 app.include_router(test_router)
 app.include_router(test_router2)
 
+
 class CompanyRequest(BaseModel):
     company_name: str
 
+
 # 將 /image 資料夾掛載到 /static 路徑
 app.mount("/static", StaticFiles(directory="image"), name="static")
+
 
 # 首頁設定成某個html
 @app.get("/", response_class=FileResponse)
 async def read_root():
     return FileResponse("./public/index.html")
 
+
 @app.post("/get_company_data")
 def get_company_data(request: CompanyRequest):
     print("********")
-    driver = webdriver.Chrome()
+    # linux上執行selenium用的配置
+    ch_options = webdriver.ChromeOptions()
+
+    ch_options.add_argument("--headless")
+    ch_options.add_argument("--no-sandbox")
+    ch_options.add_argument("--disble-gpu")
+    ch_options.add_argument("--disble-dev-shm-usage")
+
+    driver = webdriver.Chrome(ch_options)
+
     driver.maximize_window()
     try:
         # 開啟目標網頁
@@ -73,14 +86,14 @@ def get_company_data(request: CompanyRequest):
         # 定位表格
         element = driver.find_element(
             By.XPATH, '//*[@id="tabShareHolderContent"]/div[3]/table'
-        )  
+        )
         table = element.find_element(
             By.XPATH, '//*[@id="tabShareHolderContent"]/div[3]/table/tbody'
         )
-        rows = table.find_elements(By.TAG_NAME, 'tr')
+        rows = table.find_elements(By.TAG_NAME, "tr")
         for row in rows:
             row_data = []
-            cols = row.find_elements(By.TAG_NAME, 'td')
+            cols = row.find_elements(By.TAG_NAME, "td")
             for col in cols:
                 row_data.append(col.text.strip())
             data.append(row_data)
@@ -88,7 +101,7 @@ def get_company_data(request: CompanyRequest):
         return {"data": data, "screenshot_path": f"/static/{screenshot_filename}"}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"data": "error", "e": e}
 
     finally:
         driver.quit()
