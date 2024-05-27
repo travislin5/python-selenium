@@ -10,14 +10,13 @@ from selenium.webdriver.common.keys import Keys
 from datetime import datetime
 import time
 import os
+import uvicorn
 
 
 app = FastAPI()
 
-if __name__ == "__main__":
-    import uvicorn
 
-    uvicorn.run(app="start:app", host="0.0.0.0", port="8080", reload=True)
+uvicorn.run(app="start:app", host="0.0.0.0", port="8080", reload=True)
 
 app.include_router(test_router)
 app.include_router(test_router2)
