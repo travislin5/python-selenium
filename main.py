@@ -110,4 +110,5 @@ def get_company_data(request: CompanyRequest):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app="start:app", host="0.0.0.0", port="8080", reload=True)
+    print("有進來")
+    uvicorn.run(app, host="0.0.0.0", port="8080", reload=True)
